@@ -1,15 +1,17 @@
 class_name Ball
 extends Node2D
-## Balón con altura falsa (z) como en los juegos retro: `position` es el punto
-## en el suelo y la pelota se dibuja `z` píxeles más arriba, con su sombra.
+## Balón con altura falsa (z) como en los juegos retro. `pos` es el punto en
+## el suelo del campo (coordenadas del mundo); el nodo se coloca en pantalla
+## con View.project y la pelota se dibuja `z` más arriba, con su sombra.
 
 const RADIUS := 2.5
 const GRAVITY := 420.0
-const GROUND_DRAG := 0.55     # fracción de velocidad que queda tras 1 s rodando
+const GROUND_DRAG := 0.5      # fracción de velocidad que queda tras 1 s rodando
 const AIR_DRAG := 0.9
 const BOUNCE := 0.45
-const WALL_BOUNCE := 0.6
+const WALL_BOUNCE := 0.5
 
+var pos := Vector2.ZERO
 var velocity := Vector2.ZERO
 var z := 0.0
 var vz := 0.0
@@ -24,7 +26,7 @@ func kick(direction: Vector2, speed: float, lift: float) -> void:
 
 func place(at: Vector2) -> void:
 	holder = null
-	position = at
+	pos = at
 	velocity = Vector2.ZERO
 	z = 0.0
 	vz = 0.0
@@ -32,14 +34,13 @@ func place(at: Vector2) -> void:
 
 func step(delta: float) -> void:
 	if holder != null:
-		position = holder.position + holder.facing * 5.0
+		pos = holder.pos + holder.facing * 6.0
 		velocity = holder.velocity
 		z = 0.0
 		vz = 0.0
-		queue_redraw()
 		return
 
-	position += velocity * delta
+	pos += velocity * delta
 	if z > 0.0 or vz > 0.0:
 		vz -= GRAVITY * delta
 		z += vz * delta
@@ -53,34 +54,41 @@ func step(delta: float) -> void:
 			velocity = Vector2.ZERO
 
 	_keep_in_bounds()
-	queue_redraw()
 
 
-## Por ahora el campo tiene paredes invisibles (estilo fútbol sala arcade).
-## Los saques de banda y de esquina llegan en la semana 3.
+## Por ahora el campo tiene vallas invisibles justo fuera de las líneas.
+## Los saques de banda, de meta y de esquina llegan en la semana 3.
 func _keep_in_bounds() -> void:
-	if position.y < 0.0:
-		position.y = 0.0
+	var m := 6.0
+	if pos.y < -m:
+		pos.y = -m
 		velocity.y = absf(velocity.y) * WALL_BOUNCE
-	elif position.y > Pitch.WIDTH:
-		position.y = Pitch.WIDTH
+	elif pos.y > Pitch.WIDTH + m:
+		pos.y = Pitch.WIDTH + m
 		velocity.y = -absf(velocity.y) * WALL_BOUNCE
 
-	var in_mouth := position.y > Pitch.goal_top() and position.y < Pitch.goal_bottom()
-	var limit_left := -Pitch.GOAL_DEPTH if in_mouth else 0.0
-	var limit_right := Pitch.LENGTH + Pitch.GOAL_DEPTH if in_mouth else Pitch.LENGTH
-	if position.x < limit_left:
-		position.x = limit_left
+	var in_mouth := pos.y > Pitch.goal_top() and pos.y < Pitch.goal_bottom()
+	var limit_left := -Pitch.GOAL_DEPTH if in_mouth else -m
+	var limit_right := Pitch.LENGTH + Pitch.GOAL_DEPTH if in_mouth else Pitch.LENGTH + m
+	if pos.x < limit_left:
+		pos.x = limit_left
 		velocity.x = absf(velocity.x) * WALL_BOUNCE
-	elif position.x > limit_right:
-		position.x = limit_right
+	elif pos.x > limit_right:
+		pos.x = limit_right
 		velocity.x = -absf(velocity.x) * WALL_BOUNCE
 
 
+func sync_view() -> void:
+	position = View.project(pos)
+	queue_redraw()
+
+
 func _draw() -> void:
+	var lift := View.project(pos, z) - position
 	var shadow_scale := clampf(1.0 - z / 80.0, 0.4, 1.0)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.5) * shadow_scale)
 	draw_circle(Vector2.ZERO, RADIUS + 0.5, Color(0, 0, 0, 0.35))
 	draw_set_transform(Vector2.ZERO)
-	draw_circle(Vector2(0, -RADIUS - z), RADIUS, Color.WHITE)
-	draw_rect(Rect2(Vector2(-1, -RADIUS - z - 1), Vector2(2, 2)), Color(0.15, 0.15, 0.15))
+	var c := lift + Vector2(0, -RADIUS)
+	draw_circle(c, RADIUS, Color.WHITE)
+	draw_rect(Rect2(c - Vector2(1, 1), Vector2(2, 2)), Color(0.15, 0.15, 0.15))
