@@ -12,7 +12,7 @@ func _ready() -> void:
 	_score = _label(Vector2(0, 2), HORIZONTAL_ALIGNMENT_CENTER, 10)
 	_clock = _label(Vector2(0, 14), HORIZONTAL_ALIGNMENT_CENTER, 8)
 	_hint = _label(Vector2(0, 200), HORIZONTAL_ALIGNMENT_CENTER, 8)
-	_hint.text = "Mover: flechas/WASD   Tirar: J/Espacio   Pase: K   Cambiar: L"
+	_hint.text = "Mover: flechas/WASD  Tirar: J/Espacio  Pase: K  Cambiar: L"
 	_banner = _label(Vector2(0, 90), HORIZONTAL_ALIGNMENT_CENTER, 24)
 	_banner.visible = false
 

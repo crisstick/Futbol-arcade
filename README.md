@@ -1,12 +1,13 @@
 # Futbol Arcade
 
-Juego de fútbol arcade en pixel art (inspirado en Pixel Cup Soccer y Super Shot Soccer), hecho con **Godot 4.7**. Se juega en el navegador y en Android TV (Tanix).
+Juego de fútbol arcade 11 vs 11 en pixel art, con la vista lateral de International Superstar Soccer Deluxe y supertiros al estilo Super Shot Soccer. Hecho con **Godot 4.7**. Destino: Steam (PC); también se juega en el navegador.
 
 **Jugar en el navegador:** https://crisstick.github.io/Futbol-arcade/ (se actualiza solo con cada cambio en `main`).
+Agrega `?demo` al final de la dirección para ver un partido de la computadora contra sí misma.
 
 ## Controles
 
-| Acción  | Teclado              | Mando / control remoto |
+| Acción  | Teclado              | Mando |
 |---------|----------------------|------------------------|
 | Mover   | Flechas o WASD       | Stick izquierdo / cruceta |
 | Tirar   | J, Espacio o Enter   | A |
@@ -23,14 +24,14 @@ Juego de fútbol arcade en pixel art (inspirado en Pixel Cup Soccer y Super Shot
 
 ```
 scenes/main.tscn            Escena principal (el partido)
-scripts/core/               Medidas del campo y configuración de controles
+scripts/core/               Medidas del campo, proyección de la vista ISSD y controles
 scripts/controllers/        Quién maneja a cada jugador: humano, IA y (pronto) jugador online
 scripts/match/              Partido, balón, futbolistas, campo y marcador
-tests/smoke_test.gd         Prueba automática: 90 s de IA contra IA
+tests/smoke_test.gd         Prueba automática: 3 minutos de IA contra IA
 .github/workflows/web.yml   Compila la versión web y la publica en GitHub Pages
 ```
 
-Cada futbolista recibe sus órdenes de un `Controller`. Hoy existen `HumanController` y `AIController`; para el online se añadirá un controlador remoto, sin tocar la lógica del partido.
+La simulación trabaja en un campo plano de 105 × 68 m (10 px por metro) y `View` lo proyecta a la vista lateral con perspectiva. Cada futbolista recibe sus órdenes de un `Controller`. Hoy existen `HumanController` y `AIController`; para el online se añadirá un controlador remoto, sin tocar la lógica del partido.
 
 ## Prueba automática
 
@@ -40,4 +41,4 @@ godot --headless --path . --fixed-fps 60 -s tests/smoke_test.gd
 
 ## Plan
 
-12 semanas hasta la versión 1.0: juego offline con poderes (semanas 0 a 6), multijugador local y online con un humano por jugador (7 a 10), editor de equipos y lanzamiento (11 y 12).
+12 semanas hasta la versión 1.0: juego offline con poderes (semanas 0 a 6), multijugador local y online con una persona por jugador (7 a 10), editor de equipos y preparación para Steam (11 y 12).
